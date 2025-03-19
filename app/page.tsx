@@ -1,25 +1,33 @@
-"use client";
+"use client"
 
-import type React from "react";
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Calendar, Heart, MapPin, Clock, Share2 } from "lucide-react";
-import { LanguageToggle } from "@/components/language-toggle";
-import { PhotoGallery } from "@/components/photo-gallery";
-import { CalendarCountdown } from "@/components/calendar-countdown";
-import { toast, Toaster } from "sonner"; // Import cả toast và Toaster từ sonner
+import type React from "react"
+import { useState, useEffect } from "react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Calendar, Heart, MapPin, Clock } from "lucide-react"
+import { LanguageToggle } from "@/components/language-toggle"
+import { PhotoGallery } from "@/components/photo-gallery"
+import { toast, Toaster } from "sonner" // Import cả toast và Toaster từ sonner
+import { SocialShareButtons } from "@/components/social-share-buttons"
+import { sendRsvpEmail } from "@/app/actions/rsvp-actions"
 
 export default function WeddingPage() {
-  const [language, setLanguage] = useState<"en" | "vi">("vi");
-  const [mounted, setMounted] = useState(false);
+  const [language, setLanguage] = useState<"en" | "vi">("vi")
+  const [mounted, setMounted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    guests: "",
+    message: "",
+  })
 
   // Chỉ render ở client side để tránh lỗi hydration
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    setMounted(true)
+  }, [])
 
   const content = {
     en: {
@@ -51,6 +59,17 @@ export default function WeddingPage() {
       bankAccountInfo: "Bank Account Information:",
       hung: "Hoang Nguyen Hung",
       uyen: "Nguyen Hoang To Uyen",
+      fullName: "Full Name",
+      yourName: "Your name",
+      yourEmail: "Your email",
+      numberOfGuests: "Number of Guests",
+      messageOptional: "Message (Optional)",
+      messageOrDietary: "Your message or dietary restrictions",
+      sendRSVP: "Send RSVP",
+      thankYou: "Thank you for your response. We look forward to celebrating with you!",
+      viewMap: "View Map",
+      configError: "Email service is not configured. Please contact the administrator.",
+      sendError: "Failed to send confirmation. Please try again later.",
     },
     vi: {
       title: "Chúng tôi sắp kết hôn",
@@ -82,10 +101,21 @@ export default function WeddingPage() {
       bankAccountInfo: "Thông tin tài khoản ngân hàng:",
       hung: "Hoàng Nguyễn Hưng",
       uyen: "Nguyễn Hoàng Tố Uyên",
+      fullName: "Họ và tên",
+      yourName: "Tên của bạn",
+      yourEmail: "Email của bạn",
+      numberOfGuests: "Số lượng khách",
+      messageOptional: "Lời nhắn (Không bắt buộc)",
+      messageOrDietary: "Lời nhắn hoặc yêu cầu ăn uống đặc biệt của bạn",
+      sendRSVP: "Gửi xác nhận",
+      thankYou: "Cảm ơn bạn đã phản hồi. Chúng tôi rất mong được chào đón bạn!",
+      viewMap: "Xem bản đồ",
+      configError: "Hệ thống email chưa được cấu hình. Vui lòng liên hệ quản trị viên.",
+      sendError: "Không thể gửi xác nhận. Vui lòng thử lại sau.",
     },
-  };
+  }
 
-  const t = content[language];
+  const t = content[language]
 
   // Sử dụng đường dẫn tuyệt đối cho ảnh
   const photos = [
@@ -97,18 +127,43 @@ export default function WeddingPage() {
     { src: "/images/gallery-6.jpg", alt: "Blue leaves frame on pink" },
     { src: "/images/gallery-7.jpg", alt: "Marble texture with gold frame" },
     { src: "/images/gallery-8.jpg", alt: "White daisies frame" },
-  ];
+  ]
 
-  const handleRSVP = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast.success(
-      language === "en"
-        ? "Thank you for your response. We look forward to celebrating with you!"
-        : "Cảm ơn bạn đã phản hồi. Chúng tôi rất mong được chào đón bạn!"
-    );
-  };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target
+    setFormData((prev) => ({ ...prev, [id]: value }))
+  }
 
-  const mapUrl = "https://www.google.com/maps/search/?api=1&query=Lake+Side+Hotel+23+Ngoc+Khanh+Ba+Dinh+Hanoi";
+  const handleRSVP = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+
+    try {
+      await sendRsvpEmail(formData)
+      toast.success(language === "en" ? t.thankYou : t.thankYou)
+
+      // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        guests: "",
+        message: "",
+      })
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : ""
+
+      // Check if it's a configuration error
+      if (errorMessage.includes("not configured")) {
+        toast.error(language === "en" ? t.configError : t.configError)
+      } else {
+        toast.error(language === "en" ? t.sendError : t.sendError)
+      }
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const mapUrl = "https://www.google.com/maps/search/?api=1&query=Lake+Side+Hotel+23+Ngoc+Khanh+Ba+Dinh+Hanoi"
 
   // Hiển thị loading state khi chưa mounted
   if (!mounted) {
@@ -116,7 +171,7 @@ export default function WeddingPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-rose-500"></div>
       </div>
-    );
+    )
   }
 
   return (
@@ -144,7 +199,15 @@ export default function WeddingPage() {
             <div className="w-16 md:w-24 h-1 bg-rose-300 mx-auto mb-4 md:mb-6"></div>
             <p className="text-lg md:text-2xl text-rose-100 mb-4 md:mb-8 font-light">{t.title}</p>
             <p className="text-xl md:text-3xl text-white font-serif mb-6 md:mb-8">15.09.2025</p>
-            <Button className="bg-rose-500 hover:bg-rose-600 text-white rounded-full px-6 py-2 md:px-8 md:py-6 text-base md:text-lg">
+            <Button
+              className="bg-rose-500 hover:bg-rose-600 text-white rounded-full px-6 py-2 md:px-8 md:py-6 text-base md:text-lg"
+              onClick={() => {
+                const rsvpSection = document.getElementById("rsvp-section")
+                if (rsvpSection) {
+                  rsvpSection.scrollIntoView({ behavior: "smooth" })
+                }
+              }}
+            >
               {t.rsvpButton}
             </Button>
           </div>
@@ -224,7 +287,7 @@ export default function WeddingPage() {
                   rel="noopener noreferrer"
                   className="inline-block mt-3 md:mt-4 text-rose-500 hover:text-rose-600 underline"
                 >
-                  {language === "en" ? "View Map" : "Xem bản đồ"}
+                  {language === "en" ? t.viewMap : t.viewMap}
                 </Link>
               </div>
               <div className="bg-rose-50 p-6 md:p-8 rounded-lg text-center md:col-span-2 lg:col-span-1">
@@ -258,21 +321,12 @@ export default function WeddingPage() {
             <h2 className="font-serif text-xl md:text-2xl mb-3 md:mb-4">{t.shareJoy}</h2>
             <p className="text-lg md:text-xl mb-3 md:mb-4">{t.useHashtag}</p>
             <p className="text-2xl md:text-3xl font-bold text-rose-500 mb-4 md:mb-6">#HưngUyênWedding2025</p>
-            <div className="flex flex-wrap justify-center gap-3 md:gap-4">
-              <Button variant="outline" className="rounded-full text-sm md:text-base">
-                <Share2 className="mr-2 h-3 w-3 md:h-4 md:w-4" />{" "}
-                {language === "en" ? "Share on Facebook" : "Chia sẻ trên Facebook"}
-              </Button>
-              <Button variant="outline" className="rounded-full text-sm md:text-base">
-                <Share2 className="mr-2 h-3 w-3 md:h-4 md:w-4" />{" "}
-                {language === "en" ? "Share on Instagram" : "Chia sẻ trên Instagram"}
-              </Button>
-            </div>
+            <SocialShareButtons hashtag="#HưngUyênWedding2025" language={language} />
           </div>
         </section>
 
         {/* RSVP Section */}
-        <section className="py-12 md:py-20 bg-white">
+        <section id="rsvp-section" className="py-12 md:py-20 bg-white">
           <div className="container mx-auto px-4">
             <div className="text-center mb-10 md:mb-16">
               <h2 className="font-serif text-2xl md:text-4xl text-gray-800 mb-3 md:mb-4">{t.rsvp}</h2>
@@ -284,9 +338,9 @@ export default function WeddingPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                      {language === "en" ? "Full Name" : "Họ và tên"}
+                      {t.fullName}
                     </label>
-                    <Input id="name" placeholder={language === "en" ? "Your name" : "Tên của bạn"} required />
+                    <Input id="name" placeholder={t.yourName} required value={formData.name} onChange={handleChange} />
                   </div>
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
@@ -295,43 +349,46 @@ export default function WeddingPage() {
                     <Input
                       id="email"
                       type="email"
-                      placeholder={language === "en" ? "Your email" : "Email của bạn"}
+                      placeholder={t.yourEmail}
                       required
+                      value={formData.email}
+                      onChange={handleChange}
                     />
                   </div>
                 </div>
                 <div>
                   <label htmlFor="guests" className="block text-sm font-medium text-gray-700 mb-1">
-                    {language === "en" ? "Number of Guests" : "Số lượng khách"}
+                    {t.numberOfGuests}
                   </label>
                   <Input
                     id="guests"
                     type="number"
                     min="1"
                     max="5"
-                    placeholder={language === "en" ? "Number of guests" : "Số lượng khách"}
+                    placeholder={t.numberOfGuests}
                     required
+                    value={formData.guests}
+                    onChange={handleChange}
                   />
                 </div>
                 <div>
                   <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-                    {language === "en" ? "Message (Optional)" : "Lời nhắn (Không bắt buộc)"}
+                    {t.messageOptional}
                   </label>
                   <Textarea
                     id="message"
-                    placeholder={
-                      language === "en"
-                        ? "Your message or dietary restrictions"
-                        : "Lời nhắn hoặc yêu cầu ăn uống đặc biệt của bạn"
-                    }
+                    placeholder={t.messageOrDietary}
+                    value={formData.message}
+                    onChange={handleChange}
                   />
                 </div>
                 <div className="flex justify-center">
                   <Button
                     type="submit"
                     className="bg-rose-500 hover:bg-rose-600 text-white rounded-full px-6 py-2 md:px-8 md:py-6 text-base md:text-lg"
+                    disabled={isSubmitting}
                   >
-                    {language === "en" ? "Send RSVP" : "Gửi xác nhận"}
+                    {isSubmitting ? (language === "en" ? "Sending..." : "Đang gửi...") : t.sendRSVP}
                   </Button>
                 </div>
               </form>
@@ -379,5 +436,6 @@ export default function WeddingPage() {
         </footer>
       </div>
     </>
-  );
+  )
 }
+
