@@ -9,9 +9,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Calendar, Heart, MapPin, Clock } from "lucide-react"
 import { LanguageToggle } from "@/components/language-toggle"
 import { PhotoGallery } from "@/components/photo-gallery"
+import { VideoGallery } from "@/components/video-gallery"
 import { toast, Toaster } from "sonner" // Import cả toast và Toaster từ sonner
 import { SocialShareButtons } from "@/components/social-share-buttons"
 import { sendRsvpEmail } from "@/app/actions/rsvp-actions"
+import { QRCode } from "@/components/qr-code"
 
 export default function WeddingPage() {
   const [language, setLanguage] = useState<"en" | "vi">("vi")
@@ -40,12 +42,13 @@ export default function WeddingPage() {
         "For three years together, we've been captivated by our travels, journeys filled with memories. From the bustling Chatuchak market in Bangkok with its colorful stalls and laughter while shopping, to the glittering lights of The Bund in Shanghai at night, where we stood silently watching the Huangpu River. Each trip was a test of our compatibility, from choosing meals to planning itineraries. Though there were arguments due to fatigue, our love remained strong, growing through every street, every experience, binding us closer than ever.",
       weddingDetails: "Wedding Details",
       date: "The Date",
-      venue: "Lake Side Hotel",
-      address: "23 Ngoc Khanh, Ba Dinh, Hanoi",
+      venue: "International Conference Center",
+      address: "37 Hung Vuong, Ba Dinh, Hanoi",
       schedule: "Schedule",
       photoGallery: "Photo Gallery",
+      videoGallery: "Video Gallery",
       rsvp: "RSVP",
-      rsvpMessage: "We would be honored to have you join us on our special day. Please RSVP by August 15, 2025.",
+      rsvpMessage: "We would be honored to have you join us on our special day. Please RSVP by November 25, 2025.",
       giftRegistry: "Gift Registry",
       giftMessage:
         "Your presence at our wedding is the greatest gift of all. However, if you wish to honor us with a gift, we've registered at the following places.",
@@ -81,13 +84,14 @@ export default function WeddingPage() {
         "Ba năm bên nhau, chúng tôi đã mê đắm những chuyến đi, những hành trình đầy ắp kỷ niệm. Từ khu chợ Chatuchak nhộn nhịp ở Bangkok với những gian hàng đầy màu sắc, tiếng cười đùa khi mua sắm, đến Bến Thượng Hải rực rỡ ánh đèn về đêm, nơi chúng tôi đứng lặng ngắm dòng sông Hoàng Phố. Mỗi chuyến đi là một lần thử thách sự hợp gu, từ chọn món ăn đến lên kế hoạch. Dù có lúc cãi vã vì mệt mỏi, tình yêu vẫn bền chặt, lớn dần qua từng con đường, từng trải nghiệm, gắn kết chúng tôi hơn bao giờ hết.",
       weddingDetails: "Chi tiết đám cưới",
       date: "Ngày cưới",
-      venue: "Khách sạn Lake Side",
-      address: "23 Ngọc Khánh, Ba Đình, Hà Nội",
+      venue: "Trung tâm Hội nghị Quốc tế",
+      address: "37 Hùng Vương, Ba Đình, Hà Nội",
       schedule: "Lịch trình",
       photoGallery: "Thư viện ảnh",
+      videoGallery: "Thư viện video",
       rsvp: "Xác nhận tham dự",
       rsvpMessage:
-        "Chúng tôi rất vinh hạnh được đón tiếp bạn trong ngày trọng đại này. Vui lòng xác nhận tham dự trước ngày 15 tháng 8 năm 2025.",
+        "Chúng tôi rất vinh hạnh được đón tiếp bạn trong ngày trọng đại này. Vui lòng xác nhận tham dự trước ngày 15 tháng 12 năm 2025.",
       giftRegistry: "Đăng ký quà tặng",
       giftMessage:
         "Sự hiện diện của bạn trong đám cưới của chúng tôi là món quà lớn nhất. Tuy nhiên, nếu bạn muốn tặng chúng tôi một món quà, chúng tôi đã đăng ký tại các nơi sau.",
@@ -129,6 +133,17 @@ export default function WeddingPage() {
     { src: "/images/gallery-8.jpg", alt: "White daisies frame" },
   ]
 
+  const videos = [
+    {
+      url: "https://www.youtube.com/embed/acuU8BsM5BY",
+      title: "Pre-wedding Video"
+    },
+    {
+      url: "https://www.youtube.com/embed/your-video-id-2",
+      title: "Love Story Video"
+    }
+  ]
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target
     setFormData((prev) => ({ ...prev, [id]: value }))
@@ -163,7 +178,7 @@ export default function WeddingPage() {
     }
   }
 
-  const mapUrl = "https://www.google.com/maps/search/?api=1&query=Lake+Side+Hotel+23+Ngoc+Khanh+Ba+Dinh+Hanoi"
+  const mapUrl = "https://www.google.com/maps/search/?api=1&query=International+Conference+Center+Hanoi+37+Hung+Vuong"
 
   // Hiển thị loading state khi chưa mounted
   if (!mounted) {
@@ -198,7 +213,7 @@ export default function WeddingPage() {
             </h1>
             <div className="w-16 md:w-24 h-1 bg-rose-300 mx-auto mb-4 md:mb-6"></div>
             <p className="text-lg md:text-2xl text-rose-100 mb-4 md:mb-8 font-light">{t.title}</p>
-            <p className="text-xl md:text-3xl text-white font-serif mb-6 md:mb-8">15.09.2025</p>
+            <p className="text-xl md:text-3xl text-white font-serif mb-6 md:mb-8">25.11.2025</p>
             <Button
               className="bg-rose-500 hover:bg-rose-600 text-white rounded-full px-6 py-2 md:px-8 md:py-6 text-base md:text-lg"
               onClick={() => {
@@ -261,21 +276,21 @@ export default function WeddingPage() {
         </section>
 
         {/* Event Details Section */}
-        <section className="py-12 md:py-20 bg-white">
+        <section className="py-12 md:py-20 bg-rose-50">
           <div className="container mx-auto px-4">
             <div className="text-center mb-10 md:mb-16">
               <h2 className="font-serif text-2xl md:text-4xl text-gray-800 mb-3 md:mb-4">{t.weddingDetails}</h2>
               <div className="w-16 md:w-20 h-1 bg-rose-300 mx-auto"></div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto">
-              <div className="bg-rose-50 p-6 md:p-8 rounded-lg text-center">
+              <div className="bg-white p-6 md:p-8 rounded-lg text-center shadow-lg">
                 <div className="flex justify-center mb-3 md:mb-4">
                   <Calendar className="h-8 w-8 md:h-12 md:w-12 text-rose-500" />
                 </div>
                 <h3 className="font-serif text-xl md:text-2xl mb-2 text-gray-800">{t.date}</h3>
-                <p className="text-gray-600">15.09.2025</p>
+                <p className="text-gray-600">25.11.2025</p>
               </div>
-              <div className="bg-rose-50 p-6 md:p-8 rounded-lg text-center">
+              <div className="bg-white p-6 md:p-8 rounded-lg text-center shadow-lg">
                 <div className="flex justify-center mb-3 md:mb-4">
                   <MapPin className="h-8 w-8 md:h-12 md:w-12 text-rose-500" />
                 </div>
@@ -287,10 +302,10 @@ export default function WeddingPage() {
                   rel="noopener noreferrer"
                   className="inline-block mt-3 md:mt-4 text-rose-500 hover:text-rose-600 underline"
                 >
-                  {language === "en" ? t.viewMap : t.viewMap}
+                  {t.viewMap}
                 </Link>
               </div>
-              <div className="bg-rose-50 p-6 md:p-8 rounded-lg text-center md:col-span-2 lg:col-span-1">
+              <div className="bg-white p-6 md:p-8 rounded-lg text-center md:col-span-2 lg:col-span-1 shadow-lg">
                 <div className="flex justify-center mb-3 md:mb-4">
                   <Clock className="h-8 w-8 md:h-12 md:w-12 text-rose-500" />
                 </div>
@@ -315,8 +330,19 @@ export default function WeddingPage() {
           </div>
         </section>
 
+        {/* Video Gallery Section */}
+        <section className="py-12 md:py-20 bg-rose-50">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-10 md:mb-16">
+              <h2 className="font-serif text-2xl md:text-4xl text-gray-800 mb-3 md:mb-4">{t.videoGallery}</h2>
+              <div className="w-16 md:w-20 h-1 bg-rose-300 mx-auto"></div>
+            </div>
+            <VideoGallery videos={videos} />
+          </div>
+        </section>
+
         {/* Social Media Section */}
-        <section className="py-8 md:py-10 bg-white">
+        <section className="py-8 md:py-10 bg-rose-50">
           <div className="container mx-auto px-4 text-center">
             <h2 className="font-serif text-xl md:text-2xl mb-3 md:mb-4">{t.shareJoy}</h2>
             <p className="text-lg md:text-xl mb-3 md:mb-4">{t.useHashtag}</p>
@@ -326,14 +352,14 @@ export default function WeddingPage() {
         </section>
 
         {/* RSVP Section */}
-        <section id="rsvp-section" className="py-12 md:py-20 bg-white">
+        <section id="rsvp-section" className="py-12 md:py-20 bg-rose-50">
           <div className="container mx-auto px-4">
             <div className="text-center mb-10 md:mb-16">
               <h2 className="font-serif text-2xl md:text-4xl text-gray-800 mb-3 md:mb-4">{t.rsvp}</h2>
               <div className="w-16 md:w-20 h-1 bg-rose-300 mx-auto mb-3 md:mb-4"></div>
               <p className="text-gray-600 max-w-2xl mx-auto text-sm md:text-base">{t.rsvpMessage}</p>
             </div>
-            <div className="max-w-xl mx-auto bg-rose-50 p-6 md:p-8 rounded-lg">
+            <div className="max-w-xl mx-auto bg-white p-6 md:p-8 rounded-lg shadow-lg">
               <form className="space-y-4 md:space-y-6" onSubmit={handleRSVP}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <div>
@@ -407,15 +433,19 @@ export default function WeddingPage() {
               <h3 className="font-serif text-xl md:text-2xl mb-3 md:mb-4 text-center text-gray-800">
                 {t.bankAccountInfo}
               </h3>
-              <div className="space-y-3 md:space-y-4 text-center">
-                <div>
-                  <p className="font-semibold">{t.hung}</p>
-                  <p>STK: 104866931745</p>
-                </div>
-                <div>
-                  <p className="font-semibold">{t.uyen}</p>
-                  <p>STK: 19034131391016</p>
-                </div>
+              <div className="flex flex-col md:flex-row justify-center items-center gap-8">
+                <QRCode
+                  src="/images/qr-hung.jpg"
+                  alt="QR Code Hoàng Nguyễn Hưng"
+                  name={t.hung}
+                  accountNumber="104866931745"
+                />
+                <QRCode
+                  src="/images/qr-uyen.jpg"
+                  alt="QR Code Nguyễn Hoàng Tố Uyên"
+                  name={t.uyen}
+                  accountNumber="19034131391016"
+                />
               </div>
             </div>
           </div>
@@ -425,7 +455,7 @@ export default function WeddingPage() {
         <footer className="py-8 md:py-10 bg-gray-800 text-white">
           <div className="container mx-auto px-4 text-center">
             <h2 className="font-serif text-xl md:text-2xl mb-3 md:mb-4">Hưng & Uyên</h2>
-            <p className="mb-4 md:mb-6">15.09.2025 • Hanoi, VN</p>
+            <p className="mb-4 md:mb-6">25.11.2025 • Hanoi, VN</p>
             <div className="flex justify-center space-x-4 mb-4 md:mb-6">
               <Heart className="h-5 w-5 md:h-6 md:w-6 text-rose-300" />
             </div>
